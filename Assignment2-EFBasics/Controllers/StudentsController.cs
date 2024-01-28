@@ -5,18 +5,22 @@ using Assignment2_EFBasics.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using Assignment2_EFBasics.Interfaces;
 
 namespace Assignment2_EFBasics.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StudentsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
-        public StudentsController(ApplicationDbContext context)
+        IStudentValidator validator;
+        public StudentsController(ApplicationDbContext context, IStudentValidator studentValidator)
         {
             _context = context;
+            validator = studentValidator;
         }
 
         // GET: api/Students
@@ -46,6 +50,10 @@ namespace Assignment2_EFBasics.Controllers
                 return NotFound();
             }
 
+            if (!validator.isUCStudent("user"))
+            {
+                return BadRequest();
+            }
             return new Student[] { student };
         }
 
